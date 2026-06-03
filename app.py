@@ -1,69 +1,40 @@
 import streamlit as st
 import pandas as pd
-import yfinance as yf
-import plotly.express as px
 
-# PAGE SETTINGS
-st.set_page_config(
-    page_title="The Investor Mama",
-    layout="wide"
+st.set_page_config(page_title="Portfolio Dashboard")
+
+st.title("📊 Portfolio Dashboard")
+
+st.sidebar.header("Portfolio Input")
+
+tickers = st.sidebar.text_input(
+    "Enter tickers (comma separated)",
+    "AAPL,MSFT,NVDA,TSLA"
 )
 
-# TITLE
-st.title("The Investor Mama")
-st.subheader("Portfolio Analytics Dashboard")
-
-st.write("Track portfolio performance and stock allocation.")
-
-# SAMPLE PORTFOLIO
-portfolio = {
-    "Ticker": ["AAPL", "MSFT", "NVDA", "TSLA"],
-    "Shares": [10, 5, 3, 7]
-}
-
-df = pd.DataFrame(portfolio)
-
-# GET LIVE STOCK PRICES
-prices = []
-
-for ticker in df["Ticker"]:
-    stock = yf.Ticker(ticker)
-    latest_price = stock.history(period="1d")["Close"].iloc[-1]
-    prices.append(latest_price)
-
-df["Price"] = prices
-
-# CALCULATE VALUE
-df["Value"] = df["Shares"] * df["Price"]
-
-# TOTAL PORTFOLIO VALUE
-total_value = df["Value"].sum()
-
-# KPI CARDS
-col1, col2 = st.columns(2)
-
-col1.metric(
-    "Total Portfolio Value",
-    f"${total_value:,.2f}"
+shares = st.sidebar.text_input(
+    "Enter shares (comma separated)",
+    "10,5,3,7"
 )
 
-col2.metric(
-    "Number of Holdings",
-    len(df)
-)
+# Safe cleaning
+ticker_list = [t.strip().upper() for t in tickers.split(",") if t.strip()]
+share_list_raw = [s.strip() for s in shares.split(",") if s.strip()]
 
-# TABLE
-st.subheader("Portfolio Holdings")
+# Validation
+if len(ticker_list) != len(share_list_raw):
+    st.sidebar.error("Tickers and shares must match")
+    st.stop()
+
+try:
+    share_list = [int(s) for s in share_list_raw]
+except:
+    st.sidebar.error("Shares must be valid numbers only")
+    st.stop()
+
+df = pd.DataFrame({
+    "Ticker": ticker_list,
+    "Shares": share_list
+})
+
 st.dataframe(df)
-
-# PIE CHART
-st.subheader("Portfolio Allocation")
-
-fig = px.pie(
-    df,
-    names="Ticker",
-    values="Value",
-    hole=0.4
-)
-
-st.plotly_chart(fig, use_container_width=True)
