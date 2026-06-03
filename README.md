@@ -1,7 +1,10 @@
 # The Investor Mama Dashboard
 
-A portfolio analytics dashboard built with Python and Streamlit.
+## Live Demo
 
+https://theinvestormama-dashboard-lkqeeoxvqy4kseyfczviea.streamlit.app/
+
+A portfolio analytics dashboard built with Python and Streamlit.
 ## Features
 
 - Live stock prices
